@@ -1,0 +1,655 @@
+Файл Keeper.h
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <exception>
+#include <algorithm>
+
+
+using namespace std;
+template <class T>
+class Keeper {
+
+	T* ptr_mas;
+	int size;
+public:
+	Keeper() { size = 0; ptr_mas = nullptr;/* cout << "Object  Keeper created" << endl;*/ };
+	~Keeper() { delete[] ptr_mas; /*cout << "Object Keeper deleted" << endl; */ };
+
+	void save(string);
+	void read(string);
+	void add();
+	void del(int index);
+	void print();
+	void redaction(int index);
+	void sort_month();
+	void sort_surname();
+	void sort_fio();
+
+
+};
+
+
+template<class T>
+void Keeper<T>::sort_month() {
+	int month;
+	int cnt = 0;
+	cout << "Введите месяц>> ";
+	cin >> month;
+	if (size == 0)
+		cout << "Записи отсутствуют." << endl;
+	else {
+
+		for (int i = 0; i < size; i++) {
+
+			if (ptr_mas[i].search(ptr_mas[i], month))
+			{
+				cout << ptr_mas[i] << endl;
+			}
+			else {
+				cnt++;
+			}
+		}
+	}
+	if (cnt == size)
+	{
+		cout << "Совпадений не найдено." << endl;
+	}
+}
+
+template<class T>
+void Keeper<T>::sort_surname() {
+	string month;
+	int cnt = 0;
+	cout << "Введите фамилию>> ";
+	cin >> month;
+	if (size == 0)
+		cout << "Записи отсутствуют." << endl;
+	else {
+
+		for (int i = 0; i < size; i++) {
+
+			if (ptr_mas[i].names(ptr_mas[i], month))
+			{
+				cout << ptr_mas[i] << endl;
+			}
+			else {
+				cnt++;
+			}
+		}
+	}
+	if (cnt == size)
+	{
+		cout << "Совпадений не найдено." << endl;
+	}
+}
+
+template<class T>
+void Keeper<T>::sort_fio() {
+
+	if (size == 0) {
+		cout << "Записи отсутствуют." << endl;
+	}
+	else {
+		T tmp;
+		for (int i = 0; i < size; i++) {
+			for (int j = (size - 1); j >= (i + 1); j--) {
+				if (ptr_mas[j].sort(ptr_mas[j]) < ptr_mas[j - 1].sort(ptr_mas[j - 1])) {
+					tmp = ptr_mas[j];
+					ptr_mas[j] = ptr_mas[j - 1];
+					ptr_mas[j - 1] = tmp;
+				}
+			}
+		}
+	}
+
+}
+
+template<class T>
+void Keeper<T>::redaction(int index) {
+
+	if (size == 0)
+		cout << "Записи отсутствуют." << endl;
+	else {
+
+		try {
+
+			if (index-1 > size - 1 || index-1 < 0)
+				throw exception("Некорректный ввод данных.");
+		}
+		catch (exception& ex) {
+			while (index-1 < 0 || index-1 > size - 1) {
+				cout << ex.what() << endl;
+				cout << "Введите индекс ещё раз>> ";
+				cin >> index;
+			}
+		}
+
+
+		T* tmp = new T[size];
+		int j = 0;
+		for (int i = 0; i < size; i++) {
+			if (i != index-1) {
+				tmp[j++] = ptr_mas[i];
+			}
+			else {
+				cout << "Редактируемая запись" << endl;
+				cout << ptr_mas[i] << endl;
+				ptr_mas[i].redact(ptr_mas[i]);
+				cout << "Запись отредактирована." << endl;
+			}
+		}
+
+	}
+}
+
+template<class T>
+void Keeper<T>::save(string s) {
+	ofstream fout(s, ios::out);
+
+	try {
+		if (size == 0)
+			throw exception("Записи отсутствуют.");
+
+		fout << size << endl;
+		for (int i = 0; i < size; i++) {
+			fout << ptr_mas[i] << endl;
+		}
+		cout << "Данные успешно сохранены." << endl;
+	}
+	catch (exception& ex) {
+		cout << ex.what() << endl;
+	}
+	fout.close();
+}
+
+template<class T>
+void Keeper<T>::read(string s) {
+	ifstream fin(s, ios::in);
+
+	fin >> size;
+
+	if (ptr_mas != nullptr)
+		delete[] ptr_mas;
+
+	ptr_mas = new T[size];
+
+	for (int i = 0; i < size; i++) {
+		fin >> ptr_mas[i];
+	}
+
+	cout << "Данные успешно считаны." << endl;
+	fin.close();
+}
+
+
+
+template<class T>
+void Keeper<T>::add() {
+	T* tmp = new T[size + 1];
+	for (int i = 0; i < size; i++) {
+		tmp[i] = ptr_mas[i];
+	}
+	delete[] ptr_mas;
+	cin >> tmp[size];
+	ptr_mas = tmp;
+	size++;
+}
+
+template<class T>
+void Keeper<T>::del(int index) {
+	if (size == 0)
+		cout << "Записи отсуствуют." << endl;
+	else {
+
+		try {
+
+			if (index-1 > size - 1 || index-1 < 0)
+				throw exception("Некорректный ввод данных.");
+		}
+		catch (exception& ex) {
+			while (index-1 < 0 || index-1 > size - 1) {
+				cout << ex.what() << endl;
+				cout << "Введите индекс ещё раз>> ";
+				cin >> index;
+			}
+		}
+
+		T* tmp = new T[size - 1];
+		int j = 0;
+		for (int i = 0; i < size; i++) {
+			if (i != index-1)
+				tmp[j++] = ptr_mas[i];
+		}
+		delete[] ptr_mas;
+		ptr_mas = tmp;
+		size--;
+		cout << "Запись удалена." << endl;
+	}
+}
+
+template<class T>
+void Keeper<T>::print() {
+	sort_fio();
+	if (size == 0)
+		cout << "Записи отсутствуют." << endl;
+	else
+		for (int i = 0; i < size; i++) {
+			cout << "["<<i+1<<"]" << endl;
+			cout << ptr_mas[i] << endl;
+		}
+}
+
+
+
+Файл Note.h
+#pragma once
+#include "Keeper.h"
+
+class Note {
+protected:
+	string name;
+	string surname;
+	string phone_number;
+	int data[3];
+public:
+	Note();
+	Note(const Note& obj);
+	~Note();
+
+	Note& operator= (const Note& other);
+	void redact(Note&);
+	string sort(Note&);
+	bool names(Note&, string);
+	bool search(Note&, int);
+	friend ostream& operator<<(ostream&, Note&);
+	friend istream& operator>>(istream&, Note&);
+	friend ofstream& operator<<(ofstream&, Note&);
+	friend ifstream& operator>>(ifstream&, Note&);
+};
+
+Файл Note.cpp
+#include "Note.h"
+#include "Keeper.h"
+
+Note::Note() {
+	//cout << " The default constructor of the class was called Note" << endl;
+	name = "Данные недоступны";
+	surname = "Данные недоступны";
+	phone_number = "Данные недоступны";
+	data[0] = 0;
+	data[1] = 0;
+	data[2] = 0;
+}
+
+
+Note::Note(const Note& obj) {
+	*this = obj;
+}
+
+Note::~Note() {
+	//cout << "The class destructor was called Note" << endl;
+}
+
+Note& Note::operator=(const Note& other) {
+	this->name = other.name;
+	this->surname = other.surname;
+	this->data[0] = other.data[0];
+	this->data[1] = other.data[1];
+	this->data[2] = other.data[2];
+	this->phone_number = other.phone_number;
+	return *this;
+}
+
+ostream& operator<<(ostream& out, Note& obj) {
+	out << "Фамилия и имя: " <<obj.surname << " " << obj.name << endl;
+	out << "Номер телефона: " << obj.phone_number << endl;
+	out << "Дата рождения: " << obj.data[0] << ".";
+	out << obj.data[1] << ".";
+	out << obj.data[2] << endl;
+	return out;
+
+}
+
+istream& operator>>(istream& in, Note& obj) {
+	cout << "Введите имя: ";
+	getchar();
+	getline(in, obj.name);
+
+	cout << "Введите фамилию: ";
+	getline(in, obj.surname);
+
+	cout << "Введите номер телефона: ";
+	getline(in, obj.phone_number);
+
+	cout << "Введите день рождения: ";
+	while (!(in >> obj.data[0]))
+	{
+		if (in.eof())
+		{
+			throw "eof";
+		}
+		in.clear(); //Сбрасываем флаг ошибки, если таковая была
+		in.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
+		cout << "Некорректный ввод данных, повторите попытку: ";
+	}
+
+	cout << "Введите месяц рождения: ";
+	while (!(in >> obj.data[1]))
+	{
+		if (in.eof())
+		{
+			throw "eof";
+		}
+		in.clear(); //Сбрасываем флаг ошибки, если таковая была
+		in.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
+		cout << "Некорректный ввод данных, повторите попытку: ";
+	}
+	cout << "Введите год рождения: ";
+	while (!(in >> obj.data[2]))
+	{
+		if (in.eof())
+		{
+			throw "eof";
+		}
+		in.clear(); //Сбрасываем флаг ошибки, если таковая была
+		in.ignore(1000, '\n'); //Игнорируем оставшиеся в потоке данные
+		cout << "Некорректный ввод данных, повторите попытку: ";
+	}
+	return in;
+}
+
+string Note::sort(Note& obj)
+{
+	string str = surname + name;
+	return str;
+}
+bool Note::names(Note& obj,string month)
+{
+	return month == obj.surname;
+}
+bool Note::search(Note& obj, int month)
+{
+	return month == obj.data[1];
+}
+
+ofstream& operator<<(ofstream& fout, Note& obj) {
+	fout << obj.name << endl;
+	fout << obj.surname << endl;
+	fout << obj.phone_number << endl;
+	fout << obj.data[0] << endl;
+	fout << obj.data[1] << endl;
+	fout << obj.data[2] << endl;
+	return fout;
+}
+
+ifstream& operator>>(ifstream& fin, Note& obj) {
+
+	fin.get();
+	getline(fin, obj.name);
+	//fin.get();
+	getline(fin, obj.surname);
+	//fin.get();
+	getline(fin, obj.phone_number);
+	fin >> obj.data[0];
+	fin >> obj.data[1];
+	fin >> obj.data[2];
+	fin.get();
+	return fin;
+}
+
+void Note::redact(Note& obj)
+{
+	int index;
+	cout << "Редактирование: " << endl<< "1 - Имя" <<endl 
+		<< "2 - Фамилия" << endl << "3 - Номер телефона" 
+		<< endl << "4 - Дата рождения" << endl << "5 - Отмена"<< endl;
+	cin >> index;
+	switch (index)
+	{
+	case 1:
+		cout << "Введите новое имя: ";
+		getchar();
+		getline(cin, obj.name);
+		break;
+	case 2:
+		cout << "Введите новую фамилию: ";
+		cin >> obj.surname;
+		break;
+	case 3:
+		cout << "Введите новый номер телефона: ";
+		cin >> obj.phone_number;
+		break;
+	case 4:
+		cout << "Введите новый день рождения: ";
+		cin >> obj.data[0];
+		cout << "Введите новый месяц рождения: ";
+		cin >> obj.data[1];
+		cout << "Введите новый год рождения: ";
+		cin >> obj.data[2];
+		break;
+	default:
+		break;
+	}
+
+}
+Файл Menu.h
+#pragma once
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include "Keeper.h"
+#include "Note.h"
+
+template <typename T>
+void Menu(T& obj, string s) {
+	int menu;
+	int index;
+	string name;
+	int flag = 1;
+	while (flag) {
+		system("cls");
+		cout << "Задание №1: Телефонная книга" << endl;
+		cout << "   1 - Добавить запись" << endl;
+		cout << "   2 - Удалить запись" << endl;
+		cout << "   3 - Читать из файла" << endl;
+		cout << "   4 - Сохранить в файл" << endl;
+		cout << "   5 - Вывести все записи" << endl;
+		cout << "   6 - Редактировать запись" << endl;
+		cout << "   7 - Поиск по месяцу рождения" << endl;
+		cout << "   8 - Поиск по фамилии" << endl;
+		cout << "   0 - Завершение работы" << endl;
+
+		cout << ">> ";
+		cin >> menu;
+		switch (menu) {
+		case 1:
+			obj.add();
+			break;
+		case 2:
+			obj.print();
+			cout << "Введите номер записи>> ";
+			cin >> index;
+			obj.del(index);
+			system("pause");
+			break;
+		case 3:
+			obj.read(s);
+			system("pause");
+			break;
+		case 4:
+			obj.save(s);
+			system("pause");
+			break;
+		case 5:
+			obj.print();
+			system("pause");
+			break;
+		case 6:
+			obj.print();
+			cout << "Введите номер записи>> ";
+			cin >> index;
+			obj.redaction(index);
+			system("pause");
+			break;
+		case 7:
+			obj.sort_month();
+			system("pause");
+			break;
+		case 8:
+			obj.sort_surname();
+			system("pause");
+			break;
+		case 0:
+			flag = 0;
+			break;
+		default:
+			cout << "Ошибка! Некорректный ввод данных." << endl;
+			system("pause"); 
+			break;
+		}
+	}
+}
+Файл main.cpp
+#include <Windows.h>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include "Keeper.h"
+#include "Note.h"
+#include "Menu.h"
+#define ERROR_101 101
+#define ERROR_102 102
+using namespace std;
+
+int main() {
+
+	SetConsoleCP(1251);// установка кодовой страницы win-cp 1251 в поток ввода
+	SetConsoleOutputCP(1251); // установка кодовой страницы win-cp 1251 в поток вывода
+	setlocale(LC_ALL, "Rus");
+	Keeper<Note> obj;
+	system("cls");
+	Menu(obj, "phone_number.txt");
+    return 0;
+}
+
+Задание №2:
+Файл WORD.h
+#pragma once
+#include <iostream>
+#include <sstream>
+#include <fstream>
+
+using namespace std;
+
+class WORD
+{
+private:
+	string word;
+public:
+	void setword(string wrd);
+	string getword() const;
+	void change();
+	friend ostream& operator <<(ostream& output, WORD& pointer);
+};
+
+
+Файл WORD.cpp
+#include "WORD.h"
+
+void WORD::setword(string wrd)
+{
+    word = wrd;
+}
+string WORD::getword() const
+{
+    return word;
+}
+void WORD::change()
+{
+    char ch;
+    ch = word[0];
+    switch (ch) {
+    case 'a':
+        word[0] = 'A';
+        break;
+    case 'o':
+        word[0] = 'O';
+        break;
+    case 'i':
+        word[0] = 'I';
+        break;
+    case 'e':
+        word[0] = 'E';
+        break;
+    case 'u':
+        word[0] = 'U';
+        break;
+    case 'y':
+        word[0] = 'Y';
+        break;
+    }
+}
+
+ostream& operator <<(ostream& output, WORD& pointer)
+{
+    cout << pointer.word;
+    return output;
+}
+Файл main.cpp
+#include "WORD.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#define ERROR_101 101
+#define ERROR_102 102
+
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "RUS");
+    stringstream ss;
+    string str;
+    string temp;
+    WORD buff;
+    ifstream fin;
+    fin.open("test.txt");
+    try
+    {
+        if (!fin.is_open())
+            throw ERROR_101;
+    }
+    catch (int error)
+    {
+        cout << "Файла с таким именем не существует в директории!" << endl;
+        return ERROR_101;
+    }
+    cout << "Задание №2: Работа с текстом" << endl;
+    while (!fin.eof())
+    {
+        getline(fin, str);
+        ss << str;
+        while (ss >> temp)
+        {
+            buff.setword(temp);
+            buff.change();
+            cout << buff << " ";
+        }
+        cout << endl;
+        ss.clear();
+    }
+    try
+    {
+        if (!fin.is_open())
+            throw ERROR_102;
+    }
+    catch (int error)
+    {
+        cout << "Файл не может быть закрыт!" << endl;
+        return ERROR_102;
+    }
+    fin.close();
+    return 0;
+}
